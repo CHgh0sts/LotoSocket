@@ -56,6 +56,7 @@ model Room {
   Cartons  Carton[]
   Ban      Ban[]
   Category Category[]
+  Pubs     Pub[]
 
   @@map("rooms")
 }
@@ -139,4 +140,19 @@ model ActiveSession {
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("active_sessions")
+}
+
+// Modèle pour les publicités
+model Pub {
+  id        String   @id @default(cuid())
+  image     String   @db.Text // URL ou base64
+  order     Int      @default(0) // Ordre d'affichage
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("pubs")
 }
