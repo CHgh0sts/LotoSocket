@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modèle pour les utilisateurs
+model User {
+  id                     String   @id @default(cuid())
+  name                   String
+  email                  String?  @unique // si pas de email , veux dire user temp
+  password               String?
+  emailVerified          Boolean  @default(false)
+  emailVerificationToken String?
+  tempCreateRoom         String? // si un user a un code de partie ici c qu'il es un user temp relier que a cette partie
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  cartons        Carton[]
+  createdRooms   Room[]          @relation("RoomCreator")
+  joinedRooms    Room[]          @relation("RoomPlayers")
+  Ban            Ban[]
+  activeSessions ActiveSession[]
+
+  @@map("users")
+}
+
+// Modèle pour les jeux
+model Room {
+  id         String   @id @default(cuid())
+  code       String   @unique // Code à 6 chiffres
+  name       String
+  isActive   Boolean  @default(true)
+  isPublic   Boolean  @default(true) // Si true = room publique, false = room privée
+  password   String? // Mot de passe pour les rooms privées (optionnel)
+  maxPlayers Int      @default(10) // Nombre maximum de joueurs (défaut: 10)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  creatorId String
+  creator   User   @relation("RoomCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  players  User[]     @relation("RoomPlayers")
+  Party    Party[]
+  Cartons  Carton[]
+  Ban      Ban[]
+  Category Category[]
+
+  @@map("rooms")
+}
+
+// Modèle pour les parties
+model Party {
+  id          Int      @id @default(autoincrement())
+  gameType    String   @default("1Ligne")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  listNumbers Int[]
+
+  // Relations
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("parties")
+}
+
+// Modèle pour les cartons
+model Carton {
+  id        String   @id @default(cuid())
+  numbers   Int[] // Tableau des numéros du carton
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId     String
+  room       Room      @relation(fields: [roomId], references: [code], onDelete: Cascade)
+
+  @@map("cartons")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  global    Boolean  @default(false)
+  activated Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  roomId  String?
+  room    Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  cartons Carton[]
+
+  @@map("categories")
+}
+
+// Modèle pour les bannissements
+model Ban {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+  @@map("bans")
+}
+
+// Modèle pour suivre les sessions actives
+model ActiveSession {
+  id        String   @id @default(cuid())
+  socketId  String   @unique
+  userId    String?
+  roomCode  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("active_sessions")
+}

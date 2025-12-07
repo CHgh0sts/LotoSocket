@@ -1,0 +1,654 @@
+@import url('https://fonts.googleapis.com/css2?family=Grechen+Fuemen&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Reset et bases responsive */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  body {
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+h1 {
+    font-family: "Grechen Fuemen", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Variables CSS pour la cohérence des couleurs */
+:root {
+    --primary-green: #22c55e;
+    --primary-green-hover: #16a34a;
+    --primary-green-dark: #15803d;
+    --secondary-blue: #3b82f6;
+    --secondary-blue-hover: #2563eb;
+    --accent-yellow: #fbbf24;
+    --accent-red: #ef4444;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.15);
+    --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.2);
+    --border-radius: 12px;
+    --border-radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Supprimé : animations dégueulasses */
+
+/* Supprimé : effets moches des boutons */
+
+.footer {
+    position: fixed;
+    bottom: 10px;
+    opacity: .5;
+}
+
+/* Supprimé : animations dégueu des inputs */
+
+.numberSelect {
+    background: linear-gradient(135deg, var(--accent-yellow), #f59e0b) !important;
+    border: 2px solid var(--accent-yellow) !important;
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4) !important;
+}
+
+.lastNumberSelect {
+
+    border: 2px solid var(--primary-green) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.6) !important;
+    /* Supprimé : animation glow dégueulasse */
+    z-index: 10 !important;
+    position: relative !important;
+}
+
+/* Supprimé : keyframes glow dégueulasse */
+
+/* Animations pour les particules flottantes */
+/* Supprimé : animations blob dégueulasses */
+
+/* Amélioration des styles généraux responsive */
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 480px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 640px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* Amélioration des tooltips */
+[title] {
+    position: relative;
+}
+
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+}
+
+/* Supprimé : keyframes fadeIn dégueulasse */
+
+.selectedFilter {
+    position: relative;
+    width: 3vh;
+    height: 1vh;
+}
+
+.selectedFilter::before {
+    position: absolute;
+    content: '';
+    width: 1vh;
+    height: 1vh;
+    background-color: #ffffff5e;
+    border-radius: 1vh;
+    transition: width .2s;
+}
+
+.selected .selectedFilter::before {
+    position: absolute;
+    content: '';
+    width: 2.5vh;
+    height: .7vh;
+    background-color: #00ff005e;
+    border-radius: 1vh;
+    transform: translate(0, -50%);
+    top: 50%;
+}
+
+.listUsers {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.listUsers li {
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+.selected {
+    background-color: #005e003c;
+}
+
+.listUsers li:hover {
+    background-color: #00ab003c;
+}
+
+
+.Carton:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+}
+
+.Carton-row {
+    position: relative;
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    height: clamp(40px, 8vh, 80px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.Carton-row:last-child {
+    border-bottom: none;
+}
+
+.Carton-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 4/5;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition);
+}
+
+.Carton-cell:last-child {
+    border-right: none;
+}
+
+.Carton-cell:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.Carton-cell input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    text-align: center;
+    font-size: clamp(10px, 2.5vw, 18px);
+    font-weight: 600;
+    outline: none;
+}
+
+.Carton-cell input:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive breakpoints pour les cartons */
+@media (max-width: 768px) {
+    .Carton {
+        margin: 4px auto;
+        max-width: calc(100vw - 16px);
+        min-height: 150px;
+        padding: 4px;
+    }
+    
+    .Carton-row {
+        min-height: 35px;
+        height: clamp(35px, 6vh, 60px);
+    }
+    
+    .Carton-cell input {
+        font-size: clamp(8px, 2vw, 14px);
+    }
+}
+
+@media (max-width: 480px) {
+    .Carton {
+        min-height: 120px;
+        padding: 2px;
+    }
+    
+    .Carton-row {
+        min-height: 30px;
+        height: clamp(30px, 5vh, 50px);
+    }
+    
+    .Carton-cell input {
+        font-size: clamp(6px, 1.5vw, 12px);
+    }
+}
+
+/* Styles pour les cellules sélectionnées */
+.selected-cell {
+    position: relative;
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Amélioration des animations */
+.Carton {
+    /* Supprimé : animation slideIn dégueulasse */
+}
+
+/* Supprimé : keyframes slideIn dégueulasse */
+
+/* Styles pour les numéros en mode view */
+.Carton-cell span {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Amélioration des placeholders */
+.Carton-cell input::placeholder {
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+/* Styles pour les tooltips améliorés */
+@media (hover: hover) {
+    [title]:hover::after {
+        /* Supprimé : animation tooltipFadeIn dégueulasse */
+    }
+}
+
+/* Supprimé : keyframes tooltipFadeIn dégueulasse */
+
+/* Styles pour la checkbox personnalisée */
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4b5563;
+    border-radius: 4px;
+    background-color: #1f2937;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-checkbox:checked {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+.custom-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.custom-checkbox:hover {
+    border-color: #16a34a;
+    background-color: #374151;
+}
+
+.custom-checkbox:focus {
+    outline: none;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
+}
+
+.Carton-cell input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-weight: 600;
+    font-size: clamp(14px, 2vh, 18px);
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    transition: var(--transition);
+}
+
+.Carton-cell input:focus {
+    background: rgba(var(--primary-green), 0.2);
+    color: #22c55e;
+}
+
+.Carton-cell input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.isSelected::before {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    content: '';
+    width: 5vh;
+    height: 5vh;
+    background: radial-gradient(circle, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    border-radius: 50%;
+    /* Supprimé : animation pulse dégueulasse */
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+/* Supprimé : keyframes pulse dégueulasse */
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .hidden-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .hidden-desktop {
+        display: none !important;
+    }
+}
+
+/* Touch targets pour mobile */
+@media (max-width: 768px) {
+    button, .cursor-pointer {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Alignement des icônes dans les boutons - Mobile */
+@media (max-width: 768px) {
+  /* Boutons avec icônes uniquement */
+  button:has(svg:only-child) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  
+  /* Boutons avec icônes et texte */
+  button:has(svg) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Icônes dans les boutons */
+  button svg {
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+  
+  /* Correction spécifique pour les boutons de header */
+  header button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.75rem !important;
+  }
+  
+  /* Boutons avec flex items-center justify-center */
+  .flex.items-center.justify-center {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Boutons ronds/circulaires */
+  .rounded-full {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Correction pour les boutons d'action dans les dialogues */
+  [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-red-"], [class*="bg-purple-"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Variables CSS pour les couleurs */
+:root {
+  --primary-green: 34, 197, 94;
+  --primary-green-dark: 22, 163, 74;
+  --primary-blue: 59, 130, 246;
+  --primary-red: 239, 68, 68;
+  --background-dark: 17, 24, 39;
+  --background-darker: 31, 41, 55;
+  --text-primary: 255, 255, 255;
+  --text-secondary: 156, 163, 175;
+  --border-color: 75, 85, 99;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Styles pour la grille du carton */
+.Carton-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(1px, 0.2vh, 3px);
+  width: 100%;
+  aspect-ratio: 5/3;
+  padding: clamp(2px, 0.4vh, 6px);
+  background: linear-gradient(135deg, 
+    rgba(var(--background-darker), 0.9) 0%, 
+    rgba(var(--background-dark), 0.95) 100%);
+  border: 2px solid rgba(var(--border-color), 0.3);
+  border-radius: clamp(6px, 1vh, 12px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+}
+
+.Carton-grid:hover {
+  border-color: rgba(var(--primary-green), 0.5);
+  box-shadow: 0 8px 32px rgba(var(--primary-green), 0.2);
+  transform: translateY(-2px);
+}
+
+.Carton-cell {
+  position: relative;
+  background: rgba(var(--background-darker), 0.8);
+  border: 1px solid rgba(var(--border-color), 0.4);
+  border-radius: clamp(3px, 0.5vh, 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  min-height: clamp(28px, 4vh, 45px);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.Carton-cell:hover {
+  background: rgba(var(--primary-blue), 0.1);
+  border-color: rgba(var(--primary-blue), 0.5);
+  transform: scale(1.05);
+}
+
+.Carton-cell.isSelected {
+  border-color: rgba(var(--primary-green), 0.8);
+}
+
+/* Styles pour les tooltips améliorés */
+@media (hover: hover) {
+    [title]:hover::after {
+        /* Supprimé : animation tooltipFadeIn dégueulasse */
+    }
+}
+
+/* Supprimé : keyframes tooltipFadeIn dégueulasse */
+
+/* Styles pour la checkbox personnalisée */
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4b5563;
+    border-radius: 4px;
+    background-color: #1f2937;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-checkbox:checked {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+.custom-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.custom-checkbox:hover {
+    border-color: #16a34a;
+    background-color: #374151;
+}
+
+.custom-checkbox:focus {
+    outline: none;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
+}
+
+.Carton-cell input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-weight: 600;
+    font-size: clamp(14px, 2vh, 18px);
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    transition: var(--transition);
+}
+
+.Carton-cell input:focus {
+    background: rgba(var(--primary-green), 0.2);
+    color: #22c55e;
+}
+
+.Carton-cell input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.isSelected::before {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    content: '';
+    width: 5vh;
+    height: 5vh;
+    background: radial-gradient(circle, var(--primary-green) 0%, var(--primary-green-dark) 100%) !important;
+    border-radius: 50%;
+    /* Supprimé : animation pulse dégueulasse */
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+/* Supprimé : keyframes pulse dégueulasse */
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .hidden-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .hidden-desktop {
+        display: none !important;
+    }
+}
+
+/* Touch targets pour mobile */
+@media (max-width: 768px) {
+    button, .cursor-pointer {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
