@@ -142,70 +142,84 @@ const GrillePage = () => {
 
     // Rejoindre le jeu et écouter les événements (fonctionne sans être connecté)
     useEffect(() => {
-        if (socket && isConnected) {
+        if (!socket || !gameId) return
+
+        // Fonction pour rejoindre le jeu
+        const joinGame = () => {
             console.log('🎯 Grille: Rejoindre le jeu', gameId)
-            
-            // Rejoindre le jeu en tant qu'observateur (userId optionnel)
             socket.emit('join_game', { gameId: gameId, userId: user?.id || null })
+        }
 
-            // Handlers pour les événements
-            const handleGameJoined = (data) => {
-                console.log('🎯 Grille: game_joined reçu', data)
-                if (data.success && data.game) {
-                    setGameNumber(data.game.currentNumber)
-                    setPartyInfos(prev => ({ 
-                        ...prev, 
-                        gameType: data.game.gameType, 
-                        numbers: data.game.numbers, 
-                        gameId: data.game.id,
-                        listUsers: data.game.listUsers
-                    }))
-                }
-            }
+        // Rejoindre au premier connect et à chaque reconnexion
+        if (isConnected) {
+            joinGame()
+        }
 
-            const handleNumberToggled = (data) => {
-                console.log('🎯 Grille: numberToggled reçu', data)
-                setGameNumber(data.allNumbers.length > 0 ? data.allNumbers[data.allNumbers.length - 1] : 0)
+        // Écouter les reconnexions pour rejoindre à nouveau la room
+        const handleConnect = () => {
+            console.log('🎯 Grille: Socket (re)connecté, rejoindre la room')
+            joinGame()
+        }
+
+        // Handlers pour les événements du jeu
+        const handleGameJoined = (data) => {
+            console.log('🎯 Grille: game_joined reçu', data)
+            if (data.success && data.game) {
+                setGameNumber(data.game.currentNumber)
                 setPartyInfos(prev => ({ 
                     ...prev, 
-                    numbers: data.allNumbers
+                    gameType: data.game.gameType, 
+                    numbers: data.game.numbers, 
+                    gameId: data.game.id,
+                    listUsers: data.game.listUsers
                 }))
-            }
-
-            const handleNewParty = (data) => {
-                console.log('🎯 Grille: newParty reçu', data)
-                setPartyInfos(prev => ({ 
-                    ...prev, 
-                    gameType: data.party.gameType,
-                    numbers: data.party.listNumbers
-                }))
-                setGameNumber(data.party.listNumbers.length > 0 ? data.party.listNumbers[data.party.listNumbers.length - 1] : 0)
-            }
-
-            const handleGameTypeChanged = (data) => {
-                console.log('🎯 Grille: game_type_changed reçu', data)
-                setPartyInfos(prev => ({
-                    ...prev,
-                    gameType: data.gameType
-                }))
-            }
-
-            // Écouter directement sur le socket
-            socket.on('game_joined', handleGameJoined)
-            socket.on('numberToggled', handleNumberToggled)
-            socket.on('newParty', handleNewParty)
-            socket.on('game_type_changed', handleGameTypeChanged)
-
-            // Nettoyage des listeners
-            return () => {
-                console.log('🎯 Grille: Nettoyage des listeners')
-                socket.off('game_joined', handleGameJoined)
-                socket.off('numberToggled', handleNumberToggled)
-                socket.off('newParty', handleNewParty)
-                socket.off('game_type_changed', handleGameTypeChanged)
             }
         }
-    }, [socket, isConnected, gameId, user?.id, setPartyInfos])
+
+        const handleNumberToggled = (data) => {
+            console.log('🎯 Grille: numberToggled reçu', data)
+            setGameNumber(data.allNumbers.length > 0 ? data.allNumbers[data.allNumbers.length - 1] : 0)
+            setPartyInfos(prev => ({ 
+                ...prev, 
+                numbers: data.allNumbers
+            }))
+        }
+
+        const handleNewParty = (data) => {
+            console.log('🎯 Grille: newParty reçu', data)
+            setPartyInfos(prev => ({ 
+                ...prev, 
+                gameType: data.party.gameType,
+                numbers: data.party.listNumbers
+            }))
+            setGameNumber(data.party.listNumbers.length > 0 ? data.party.listNumbers[data.party.listNumbers.length - 1] : 0)
+        }
+
+        const handleGameTypeChanged = (data) => {
+            console.log('🎯 Grille: game_type_changed reçu', data)
+            setPartyInfos(prev => ({
+                ...prev,
+                gameType: data.gameType
+            }))
+        }
+
+        // Écouter les événements
+        socket.on('connect', handleConnect)
+        socket.on('game_joined', handleGameJoined)
+        socket.on('numberToggled', handleNumberToggled)
+        socket.on('newParty', handleNewParty)
+        socket.on('game_type_changed', handleGameTypeChanged)
+
+        // Nettoyage des listeners
+        return () => {
+            console.log('🎯 Grille: Nettoyage des listeners')
+            socket.off('connect', handleConnect)
+            socket.off('game_joined', handleGameJoined)
+            socket.off('numberToggled', handleNumberToggled)
+            socket.off('newParty', handleNewParty)
+            socket.off('game_type_changed', handleGameTypeChanged)
+        }
+    }, [socket, isConnected, gameId])
 
     if (loadingGameInfo) {
         return (

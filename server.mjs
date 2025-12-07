@@ -18,10 +18,10 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
     const httpServer = createServer(handle);
     
-    // Configuration Socket.IO avec CORS
+    // Configuration Socket.IO avec CORS (accepte toutes les origines pour le réseau local)
     const io = new Server(httpServer, {
         cors: {
-            origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+            origin: true, // Accepte toutes les origines
             methods: ["GET", "POST"],
             credentials: true
         },

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { io } from 'socket.io-client'
 
-export function useSocketClient(url = 'http://localhost:3000') {
+export function useSocketClient(url) {
   const [socket, setSocket] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
   const [lastMessage, setLastMessage] = useState(null)
@@ -11,8 +11,10 @@ export function useSocketClient(url = 'http://localhost:3000') {
 
   const connect = useCallback(() => {
     try {
-      console.log('🔌 Tentative de connexion Socket.IO vers:', url)
-      const socketInstance = io(url, {
+      // Utiliser l'origine de la page actuelle pour fonctionner sur tous les appareils
+      const socketUrl = url || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+      console.log('🔌 Tentative de connexion Socket.IO vers:', socketUrl)
+      const socketInstance = io(socketUrl, {
         transports: ['websocket', 'polling'],
         autoConnect: false,
         timeout: 20000,
@@ -21,13 +23,20 @@ export function useSocketClient(url = 'http://localhost:3000') {
         reconnectionAttempts: 5
       })
       
-      socketInstance.on('connect', (gameId) => {
+      socketInstance.on('connect', () => {
+        console.log('🔌 Socket connecté:', socketInstance.id)
         setIsConnected(true)
         setError(null)
-
       })
 
-      socketInstance.on('disconnect', () => {
+      socketInstance.on('reconnect', (attemptNumber) => {
+        console.log('🔌 Socket reconnecté après', attemptNumber, 'tentatives')
+        setIsConnected(true)
+        setError(null)
+      })
+
+      socketInstance.on('disconnect', (reason) => {
+        console.log('🔌 Socket déconnecté:', reason)
         setIsConnected(false)
       })
 
