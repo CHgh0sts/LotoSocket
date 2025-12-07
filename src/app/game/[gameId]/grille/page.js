@@ -16,6 +16,13 @@ const GrillePage = () => {
     const [loadingGameInfo, setLoadingGameInfo] = useState(true)
     const [partyData, setPartyData] = useState(null)
 
+
+    const pubs = [
+        'https://upload.wikimedia.org/wikipedia/fr/thumb/e/ea/Mcdonalds_France_2009_logo.svg/1200px-Mcdonalds_France_2009_logo.svg.png',
+        'https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/7fb69496915983.5eb97c369afbd.jpg',
+        
+    ]
+
     // Charger les informations de la partie au démarrage
     useEffect(() => {
         const loadPartyData = async () => {

@@ -359,7 +359,7 @@ function MyComponent() {
                 <Badge variant="secondary">UI</Badge>
               </CardTitle>
               <CardDescription>
-                Hook pour détecter si l'utilisateur est sur un appareil mobile
+                Hook pour détecter si l&apos;utilisateur est sur un appareil mobile
               </CardDescription>
             </CardHeader>
             <CardContent>
