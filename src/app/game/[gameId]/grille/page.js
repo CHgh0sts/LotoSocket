@@ -235,7 +235,7 @@ const GrillePage = () => {
             {/* Type de jeu actuel en bas */}
             <div className='fixed bottom-0 left-0 w-full h-[5vh] bg-gray-800 border-t border-gray-700 flex items-center justify-center'>
                 <span className='text-gray-400 text-sm'>
-                    Type de jeu : <span className='text-white font-medium'>{partyInfos.gameType || '1Ligne'}</span>
+                    Type de jeu : <span className='text-white font-medium'>{partyInfos.gameType || '1 Ligne'}</span>
                 </span>
             </div>
         </div>

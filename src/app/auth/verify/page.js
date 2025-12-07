@@ -78,7 +78,7 @@ export default function VerifyEmailPage() {
         <div className="mb-6">
           <Link href="/" className="inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
 
@@ -89,7 +89,7 @@ export default function VerifyEmailPage() {
               {getStatusIcon()}
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-              Vérification de l'email
+              Vérification de l&apos;email
             </CardTitle>
             <CardDescription className="text-gray-600 dark:text-gray-300">
               {status === 'loading' && 'Vérification en cours...'}

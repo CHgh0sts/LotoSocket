@@ -84,7 +84,7 @@ export default function HooksPage() {
                     <Badge variant="secondary">UI</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Hook pour détecter si l'utilisateur est sur un appareil mobile
+                    Hook pour détecter si l&apos;utilisateur est sur un appareil mobile
                   </CardDescription>
                 </div>
                 <div className="text-right">
@@ -114,7 +114,7 @@ function MyComponent() {
               <div className="bg-muted p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">Fonctionnalités :</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• Détection automatique de la taille d'écran</li>
+                  <li>• Détection automatique de la taille d&apos;écran</li>
                   <li>• Breakpoint configurable (768px par défaut)</li>
                   <li>• Mise à jour en temps réel lors du redimensionnement</li>
                   <li>• Gestion des événements de media query</li>
@@ -156,7 +156,7 @@ function MyComponent() {
               <div className="bg-muted p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">Fonctionnalités :</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• Évite l'erreur d'hydratation Next.js</li>
+                  <li>• Évite l&apos;erreur d&apos;hydratation Next.js</li>
                   <li>• Gestion automatique client/serveur</li>
                   <li>• Transition fluide entre les valeurs</li>
                 </ul>
@@ -216,7 +216,7 @@ function MyComponent() {
                 <Badge variant="destructive">Network</Badge>
               </CardTitle>
               <CardDescription>
-                Hook pour gérer les connexions Socket.IO avec gestion d'état complète
+                Hook pour gérer les connexions Socket.IO avec gestion d&apos;état complète
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -342,7 +342,7 @@ function MyComponent() {
                   <li>• Support de la syntaxe .on() et .off()</li>
                   <li>• Gestion des erreurs</li>
                   <li>• Événements personnalisés</li>
-                  <li>• Nettoyage automatique à la destruction</li>
+                  <li>• Nettoyage automatique à la fermeture</li>
                   <li>• État de connexion en temps réel</li>
                   <li>• Support WebSocket et polling</li>
                 </ul>

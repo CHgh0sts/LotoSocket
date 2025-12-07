@@ -50,7 +50,7 @@ export default function LoginPage() {
         <div className="mb-6">
           <Link href="/" className="inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
 
