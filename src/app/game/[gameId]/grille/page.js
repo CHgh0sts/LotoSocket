@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { useParams } from 'next/navigation'
 import { useSocketClient } from '@/hooks/socketClient'
 import { GlobalContext } from '@/contexts/GlobalState'
-import { Loader2, Wifi, WifiOff } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Cookies from 'js-cookie'
 
@@ -15,13 +15,26 @@ const GrillePage = () => {
     const { partyInfos, setPartyInfos } = useContext(GlobalContext)
     const [loadingGameInfo, setLoadingGameInfo] = useState(true)
     const [partyData, setPartyData] = useState(null)
+    const [currentPubIndex, setCurrentPubIndex] = useState(0)
 
-
+    // Liste des publicités (images locales ou en ligne)
     const pubs = [
         'https://upload.wikimedia.org/wikipedia/fr/thumb/e/ea/Mcdonalds_France_2009_logo.svg/1200px-Mcdonalds_France_2009_logo.svg.png',
         'https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/7fb69496915983.5eb97c369afbd.jpg',
-        
+        // Ajoutez vos images locales comme : '/images/pub1.jpg'
+        // Ou d'autres URLs en ligne
     ]
+
+    // Défilement automatique des publicités
+    useEffect(() => {
+        if (pubs.length <= 1) return
+        
+        const interval = setInterval(() => {
+            setCurrentPubIndex((prev) => (prev + 1) % pubs.length)
+        }, 5000) // Change toutes les 5 secondes
+
+        return () => clearInterval(interval)
+    }, [pubs.length])
 
     // Charger les informations de la partie au démarrage
     useEffect(() => {
@@ -150,46 +163,40 @@ const GrillePage = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-900 flex flex-col'>
-            {/* En-tête avec le nom de la partie et statut de connexion */}
-            <div className='fixed top-0 left-0 w-full h-[6vh] bg-gray-800 z-50 border-b border-gray-700'>
-                <div className='flex items-center justify-between px-4 h-full'>
-                    <div className='text-white text-sm flex items-center gap-2'>
-                        <span className='font-semibold'>{partyData?.name || 'Partie'}</span>
-                        <span className='text-gray-400'>|</span>
-                        <span className='text-gray-400'>Grille en direct</span>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                        {isConnected ? (
-                            <div className='flex items-center gap-2 text-green-400 text-sm'>
-                                <Wifi className='w-4 h-4' />
-                                <span>Connecté</span>
-                            </div>
-                        ) : (
-                            <div className='flex items-center gap-2 text-red-400 text-sm'>
-                                <WifiOff className='w-4 h-4' />
-                                <span>Déconnecté</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             {/* Contenu principal */}
-            <div className='flex-1 mt-[6vh] flex flex-col lg:flex-row items-center justify-center gap-8 p-4'>
+            <div className='flex-1 flex flex-col lg:flex-row items-center justify-center gap-8 p-4'>
                 
-                {/* Section dernier numéro */}
-                <div className='w-full lg:w-auto flex justify-center'>
-                    <div className='relative flex items-center justify-center flex-col bg-gray-800 h-[25vh] w-[25vh] rounded-2xl border border-gray-700 shadow-2xl'>
-                        <h4 className='text-gray-400 text-sm uppercase tracking-wider mb-2'>Dernier numéro</h4>
-                        <div className={`text-7xl font-bold transition-all duration-500 ${gameNumber > 0 ? 'text-green-400 animate-pulse' : 'text-gray-500'}`}>
+                {/* Section dernier numéro + Publicité */}
+                <div className='w-full lg:w-auto flex flex-col items-center gap-6'>
+                    <div className='relative flex items-center justify-center flex-col bg-gray-800 h-[35vh] w-[35vh] rounded-2xl border border-gray-700 shadow-2xl'>
+                        <h4 className='text-gray-400 text-lg uppercase tracking-wider mb-3'>Dernier numéro</h4>
+                        <div className={`text-9xl font-bold transition-all duration-500 ${gameNumber > 0 ? 'text-green-400 animate-pulse' : 'text-gray-500'}`}>
                             {gameNumber || '-'}
                         </div>
-                        <div className='absolute bottom-3 left-0 right-0 flex justify-center'>
-                            <span className='text-gray-500 text-xs'>
+                        <div className='absolute bottom-4 left-0 right-0 flex justify-center'>
+                            <span className='text-gray-500 text-sm'>
                                 {partyInfos.numbers?.length || 0} numéros tirés
                             </span>
                         </div>
                     </div>
+
+                    {/* Encart publicitaire sous le dernier numéro */}
+                    {pubs.length > 0 && (
+                        <div className='relative w-[35vh] h-[280px] bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg'>
+                            {pubs.map((pub, index) => (
+                                <img
+                                    key={index}
+                                    src={pub}
+                                    alt={`Publicité ${index + 1}`}
+                                    className={`absolute inset-0 w-full h-full object-contain p-4 transition-all duration-700 ${
+                                        index === currentPubIndex 
+                                            ? 'opacity-100 scale-100' 
+                                            : 'opacity-0 scale-95'
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Grille des numéros */}
