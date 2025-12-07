@@ -24,27 +24,6 @@ const GrillePage = () => {
     const [pubs, setPubs] = useState([])
     const [isCreator, setIsCreator] = useState(false)
 
-    // Charger les pubs depuis la base de données
-    const loadPubs = async () => {
-        try {
-            const token = Cookies.get('token')
-            if (!token) return
-
-            const response = await fetch(`/api/game/${gameId}/pubs`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-
-            const data = await response.json()
-            if (data.success) {
-                setPubs(data.pubs || [])
-            }
-        } catch (error) {
-            console.log('Erreur lors du chargement des pubs:', error)
-        }
-    }
-
     // Sauvegarder les pubs dans la base de données
     const savePubs = async (newPubs) => {
         try {
@@ -100,12 +79,6 @@ const GrillePage = () => {
         await savePubs(newPubs)
     }
 
-    // Charger les pubs au démarrage
-    useEffect(() => {
-        if (gameId) {
-            loadPubs()
-        }
-    }, [gameId])
 
     // Défilement automatique des publicités
     useEffect(() => {
@@ -118,22 +91,12 @@ const GrillePage = () => {
         return () => clearInterval(interval)
     }, [pubs.length])
 
-    // Charger les informations de la partie au démarrage
+    // Charger les informations de la partie au démarrage (API publique)
     useEffect(() => {
         const loadPartyData = async () => {
             try {
-                const token = Cookies.get('token')
-                if (!token) {
-                    console.log('Erreur: Token d\'authentification manquant')
-                    setLoadingGameInfo(false)
-                    return
-                }
-
-                const response = await fetch(`/api/game/${gameId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
+                // Utiliser l'API publique pour la grille (pas besoin de token)
+                const response = await fetch(`/api/game/${gameId}/grille`)
 
                 const data = await response.json()                
 
@@ -142,22 +105,19 @@ const GrillePage = () => {
                     // Vérifier si l'utilisateur est le créateur
                     setIsCreator(data.room.creator?.id === user?.id)
                     
-                    const latestParty = data.room.Party[0]
-                    setGameNumber(latestParty && latestParty.listNumbers.length > 0 ? latestParty.listNumbers[latestParty.listNumbers.length - 1] : 0)
+                    setGameNumber(data.room.currentNumber || 0)
                     
-                    // Mettre à jour le contexte global avec la dernière partie
-                    const lastParty = data.room.Party[0]
-                    if (lastParty) {
-                        setPartyInfos(prev => ({
-                            ...prev,
-                            id: lastParty.id,
-                            gameType: lastParty.gameType,
-                            numbers: lastParty.listNumbers || [],
-                            roomId: data.room.id,
-                            creator: data.room.creator,
-                            listUsers: data.room.players ? data.room.players.map(player => ({ id: player.id, username: player.name })) : []
-                        }))
-                    }
+                    // Charger les pubs
+                    setPubs(data.pubs || [])
+                    
+                    // Mettre à jour le contexte global
+                    setPartyInfos(prev => ({
+                        ...prev,
+                        gameType: data.room.gameType,
+                        numbers: data.room.listNumbers || [],
+                        roomId: data.room.id,
+                        creator: data.room.creator
+                    }))
                 } else {
                     console.log(`Erreur lors du chargement de la room: ${data.error}`)
                 }
@@ -171,7 +131,7 @@ const GrillePage = () => {
         if (gameId) {
             loadPartyData()
         }
-    }, [gameId, setPartyInfos])
+    }, [gameId, setPartyInfos, user?.id])
 
     // Connecter automatiquement au socket
     useEffect(() => {
@@ -180,11 +140,11 @@ const GrillePage = () => {
         }
     }, [connect, isConnected])
 
-    // Rejoindre le jeu et écouter les événements
+    // Rejoindre le jeu et écouter les événements (fonctionne sans être connecté)
     useEffect(() => {
-        if (socket && isConnected && user?.id) {
-            // Rejoindre le jeu
-            socket.emit('join_game', { gameId: gameId, userId: user.id })
+        if (socket && isConnected) {
+            // Rejoindre le jeu en tant qu'observateur (userId optionnel)
+            socket.emit('join_game', { gameId: gameId, userId: user?.id || null })
 
             // Écouter les événements du jeu
             on('game_joined', (data) => {
@@ -198,7 +158,6 @@ const GrillePage = () => {
                         listUsers: data.game.listUsers
                     }))
                 }
-                setLoadingGameInfo(false)
             })
 
             on('numberToggled', (data) => {
