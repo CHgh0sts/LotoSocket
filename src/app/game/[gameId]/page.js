@@ -1123,7 +1123,7 @@ const GamePage = () => {
                     <div className='flex items-center justify-center h-full p-2 md:p-0'>
                     <div className='grid grid-cols-10 gap-1 md:gap-2'>
                         {Array.from({ length: 90 }, (_, i) => i + 1).map((number) => (
-                              <div key={number} className={`text-white text-center text-xs md:text-base p-1 md:p-2 w-8 h-8 md:w-10 md:h-10 cursor-pointer transition-all duration-300 bg-gray-700 rounded ${partyInfos.numbers && partyInfos.numbers.length > 0 && partyInfos.numbers[partyInfos.numbers.length - 1] === number ? 'bg-green-500 scale-107' : (partyInfos.numbers && partyInfos.numbers.includes(number) ? 'bg-yellow-500/50 scale-105' : 'hover:bg-green-900')}`} onClick={() => handleNumberClick(number)}>
+                              <div key={number} className={`text-white flex items-center justify-center text-[10px] md:text-base w-7 h-7 md:w-10 md:h-10 cursor-pointer transition-all duration-300 bg-gray-700 rounded ${partyInfos.numbers && partyInfos.numbers.length > 0 && partyInfos.numbers[partyInfos.numbers.length - 1] === number ? 'bg-green-500 md:scale-107' : (partyInfos.numbers && partyInfos.numbers.includes(number) ? 'bg-yellow-500/50' : 'hover:bg-green-900')}`} onClick={() => handleNumberClick(number)}>
                                 {number}
                             </div>
                         ))}
