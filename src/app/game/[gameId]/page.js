@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useCallback, useMemo } from 're
 import { useParams, useRouter } from 'next/navigation'
 import { useSocketClient } from '@/hooks/socketClient'
 import { GlobalContext } from '@/contexts/GlobalState'
-import { Loader2, Crown, Lock, LockOpen, CheckIcon, FolderOpen, BarChart3, LogOut } from 'lucide-react'
+import { Loader2, Crown, Lock, LockOpen, CheckIcon, FolderOpen, BarChart3, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Cookies from 'js-cookie'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -54,6 +54,7 @@ const GamePage = () => {
     const [showCartonCategoryModal, setShowCartonCategoryModal] = useState(false)
     const [selectedCartonForCategory, setSelectedCartonForCategory] = useState(null)
     const [categories, setCategories] = useState([])
+    const [showMobileSidebar, setShowMobileSidebar] = useState(false)
 
     // Fonction pour filtrer les cartons des catégories désactivées
     const filterActiveCartons = useCallback((cartonsToFilter) => {
@@ -1065,11 +1066,11 @@ const GamePage = () => {
                         >
                             {partyData?.isPublic ? <LockOpen className='w-4 h-4 text-white' /> : <Lock className='w-4 h-4 text-white' />}
                         </button>
-                        <span className="ml-2">{partyData?.name || ''}</span>
+                        <span className="ml-2 truncate max-w-[120px] md:max-w-none">{partyData?.name || ''}</span>
                     </div>
 
-                    {/* Section droite - Boutons d'actions */}
-                    <div className='flex items-center gap-2'>
+                    {/* Section droite - Boutons d'actions (cachés sur mobile) */}
+                    <div className='hidden md:flex items-center gap-2'>
                         <button
                             onClick={handleCategoriesClick}
                             className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors duration-200"
@@ -1097,33 +1098,44 @@ const GamePage = () => {
                             Quitter
                         </button>
                     </div>
+
+                    {/* Bouton menu hamburger (visible sur mobile) */}
+                    <button
+                        onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+                        className="md:hidden p-2 text-white hover:bg-gray-700 rounded transition-colors"
+                    >
+                        {showMobileSidebar ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
+                    </button>
                 </div>
             </div>
             <div className='relative w-full mt-[6vh] h-[94vh] bg-gray-900'>
-                <div className='relative top-0 left-0 w-[calc(100%-35vh)] h-full bg-gray-900 border-b border-gray-700'>
-                    {/* Classement des joueurs en bas à gauche */}
-                    
+                <div className='relative top-0 left-0 w-full md:w-[calc(100%-35vh)] h-full bg-gray-900 border-b border-gray-700'>
+                    {/* Classement des joueurs en bas à gauche (caché sur mobile) */}
+                    <div className='hidden md:block'>
                         <PlayersCartonsList 
                             players={players}
                             cartons={activeCartons}
                             drawnNumbers={partyInfos.numbers || []}
                             gameType={gameType}
                         />
+                    </div>
                     
-                    <div className='flex items-center justify-center h-full'>
-                    <div className='grid grid-cols-10 gap-2'>
+                    <div className='flex items-center justify-center h-full p-2 md:p-0'>
+                    <div className='grid grid-cols-9 md:grid-cols-10 gap-1 md:gap-2'>
                         {Array.from({ length: 90 }, (_, i) => i + 1).map((number) => (
-                              <div key={number} className={`text-white text-center p-2 w-10 h-10 cursor-pointer transition-all duration-300 bg-gray-700 rounded ${partyInfos.numbers && partyInfos.numbers.length > 0 && partyInfos.numbers[partyInfos.numbers.length - 1] === number ? 'bg-green-500 scale-107' : (partyInfos.numbers && partyInfos.numbers.includes(number) ? 'bg-yellow-500/50 scale-105' : 'hover:bg-green-900')}`} onClick={() => handleNumberClick(number)}>
+                              <div key={number} className={`text-white text-center text-xs md:text-base p-1 md:p-2 w-8 h-8 md:w-10 md:h-10 cursor-pointer transition-all duration-300 bg-gray-700 rounded ${partyInfos.numbers && partyInfos.numbers.length > 0 && partyInfos.numbers[partyInfos.numbers.length - 1] === number ? 'bg-green-500 scale-107' : (partyInfos.numbers && partyInfos.numbers.includes(number) ? 'bg-yellow-500/50 scale-105' : 'hover:bg-green-900')}`} onClick={() => handleNumberClick(number)}>
                                 {number}
                             </div>
                         ))}
                     </div>
                     </div>
-                    <div className='absolute bottom-0 right-0 flex items-center justify-center'>
+                    <div className='absolute bottom-0 right-0 flex items-center justify-center p-2'>
                         <p className='text-white text-sm'>{partyInfos.listUsers?.length || 0} joueurs</p>
                     </div>
                 </div>
-                <div className='absolute top-0 right-0 w-[35vh] h-full bg-gray-800 border-l z-2 border-gray-700 flex flex-col'>
+
+                {/* Sidebar desktop */}
+                <div className='hidden md:flex absolute top-0 right-0 w-[35vh] h-full bg-gray-800 border-l z-2 border-gray-700 flex-col'>
                     {loadingGameInfo ? (
                         <div className='flex items-center justify-center h-full'>
                             <Loader2 className='w-5 h-5 text-white mr-2 animate-spin' />
@@ -1208,6 +1220,126 @@ const GamePage = () => {
                         </>
                     )}
                 </div>
+
+                {/* Sidebar mobile (overlay) */}
+                {showMobileSidebar && (
+                    <div className='md:hidden fixed inset-0 z-40 mt-[6vh]' onClick={() => setShowMobileSidebar(false)}>
+                        <div className='absolute inset-0 bg-black/50' />
+                        <div 
+                            className='absolute right-0 top-0 w-[80vw] max-w-[300px] h-full bg-gray-800 border-l border-gray-700 flex flex-col overflow-y-auto'
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {loadingGameInfo ? (
+                                <div className='flex items-center justify-center h-full'>
+                                    <Loader2 className='w-5 h-5 text-white mr-2 animate-spin' />
+                                    <p className='text-white text-sm text-center'>Chargement...</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Section supérieure avec dernier numéro et contrôles */}
+                                    <div className='p-4 border-b border-gray-700'>
+                                        <div className='relative flex items-center justify-center flex-col bg-gray-900 h-[100px] w-full rounded-lg mb-4'>
+                                            <h4 className='text-gray-300 text-sm'>Dernier numéro :</h4>
+                                            <h3 className='text-white text-3xl font-bold'>{gameNumber}</h3>
+                                        </div>
+                                        
+                                        <div className='mb-4'>
+                                            <h3 className='text-white text-sm mb-2'>Type de partie</h3>
+                                            <div className='space-y-1'>
+                                                <button 
+                                                    className={`text-white px-3 py-1.5 rounded-lg w-full text-left cursor-pointer flex items-center transition-all duration-300 text-sm ${getButtonState('1Ligne').isSelected ? 'bg-green-700' : 'bg-gray-700 hover:bg-green-900'}`} 
+                                                    onClick={() => handleGameType('1Ligne')}
+                                                    disabled={getButtonState('1Ligne').isDisabled}
+                                                >
+                                                    {getButtonState('1Ligne').isSelected ? 
+                                                        <div className='w-2 h-2 bg-white rounded-full mr-2'></div> : 
+                                                        getButtonState('1Ligne').isLoading ? 
+                                                            <Loader2 className='w-2 h-2 mr-2 animate-spin' /> : 
+                                                            <div className='w-2 h-2 border border-white rounded-full mr-2'></div>
+                                                    }
+                                                    1 Ligne
+                                                </button>
+                                                <button 
+                                                    className={`text-white px-3 py-1.5 rounded-lg w-full text-left cursor-pointer flex items-center transition-all duration-300 text-sm ${getButtonState('2Lignes').isSelected ? 'bg-green-700' : 'bg-gray-700 hover:bg-green-900'}`} 
+                                                    onClick={() => handleGameType('2Lignes')}
+                                                    disabled={getButtonState('2Lignes').isDisabled}
+                                                >
+                                                    {getButtonState('2Lignes').isSelected ? 
+                                                        <div className='w-2 h-2 bg-white rounded-full mr-2'></div> : 
+                                                        getButtonState('2Lignes').isLoading ? 
+                                                            <Loader2 className='w-2 h-2 mr-2 animate-spin' /> : 
+                                                            <div className='w-2 h-2 border border-white rounded-full mr-2'></div>
+                                                    }
+                                                    2 Lignes
+                                                </button>
+                                                <button 
+                                                    className={`text-white px-3 py-1.5 rounded-lg w-full text-left cursor-pointer flex items-center transition-all duration-300 text-sm ${getButtonState('CartonPlein').isSelected ? 'bg-green-700' : 'bg-gray-700 hover:bg-green-900'}`} 
+                                                    onClick={() => handleGameType('CartonPlein')}
+                                                    disabled={getButtonState('CartonPlein').isDisabled}
+                                                >
+                                                    {getButtonState('CartonPlein').isSelected ? 
+                                                        <div className='w-2 h-2 bg-white rounded-full mr-2'></div> : 
+                                                        getButtonState('CartonPlein').isLoading ? 
+                                                            <Loader2 className='w-2 h-2 mr-2 animate-spin' /> : 
+                                                            <div className='w-2 h-2 border border-white rounded-full mr-2'></div>
+                                                    }
+                                                    Carton Plein
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <button onClick={handleEndParty} className='text-white px-3 py-2 rounded-lg w-full cursor-pointer flex items-center justify-center transition-all duration-300 bg-gray-900 border border-green-700 hover:border-green-500 hover:text-green-500 text-center text-sm'>
+                                          Partie Remportée
+                                        </button>
+                                        
+                                        <div className='flex items-center justify-center mt-3'>
+                                            <label className='text-white text-xs cursor-pointer flex items-center' onClick={() => setClearNumbers(!clearNumbers)}>
+                                                <div className={`w-5 h-5 rounded-xs mr-2 ${clearNumbers ? 'bg-transparent duration-300' : 'bg-white duration-300'} flex items-center justify-center`}>
+                                                    <CheckIcon className={`${clearNumbers ? 'text-white duration-300' : 'opacity-0 duration-300'}`} />
+                                                </div>
+                                                <p className={`text-xs ${clearNumbers ? 'text-green-500 duration-300' : 'text-white duration-300'}`}>Vider les numéros tirés</p>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions rapides mobile */}
+                                    <div className='p-4 space-y-2'>
+                                        <button
+                                            onClick={() => { handleCategoriesClick(); setShowMobileSidebar(false); }}
+                                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded w-full transition-colors duration-200"
+                                        >
+                                            <FolderOpen className='w-4 h-4' />
+                                            Catégories
+                                        </button>
+                                        
+                                        <button
+                                            onClick={() => { handleStatsClick(); setShowMobileSidebar(false); }}
+                                            className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded w-full transition-colors duration-200"
+                                        >
+                                            <BarChart3 className='w-4 h-4' />
+                                            Statistiques
+                                        </button>
+
+                                        <button 
+                                            onClick={() => { handlePlayersList(); setShowMobileSidebar(false); }} 
+                                            className='flex items-center gap-2 px-3 py-2 bg-green-700 hover:bg-green-800 text-white text-sm rounded w-full transition-colors duration-200'
+                                        >
+                                            Joueurs / Cartons
+                                        </button>
+                                        
+                                        <button
+                                            onClick={handleLeaveGame}
+                                            className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded w-full transition-colors duration-200"
+                                        >
+                                            <LogOut className='w-4 h-4' />
+                                            Quitter la partie
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
               </div>
 
               {/* Modal Liste des Joueurs */}
@@ -1217,11 +1349,11 @@ const GamePage = () => {
                       onClick={() => setShowPlayersModal(false)}
                   >
                       <div 
-                          className="bg-gray-800 rounded-lg p-6 w-11/12 h-5/6 max-w-6xl flex flex-col"
+                          className="bg-gray-800 rounded-lg p-4 md:p-6 w-full h-full md:w-11/12 md:h-5/6 md:max-w-6xl flex flex-col md:rounded-lg"
                           onClick={(e) => e.stopPropagation()}
                       >
                           <div className="flex justify-between items-center mb-4">
-                              <h2 className="text-white text-xl font-bold">Liste des Joueurs</h2>
+                              <h2 className="text-white text-lg md:text-xl font-bold">Liste des Joueurs</h2>
                               <button 
                                   onClick={() => setShowPlayersModal(false)}
                                   className="text-gray-400 hover:text-white text-2xl"
@@ -1230,9 +1362,9 @@ const GamePage = () => {
                               </button>
                           </div>
                           
-                          <div className="flex flex-1 gap-4 overflow-hidden">
-                              {/* Liste des joueurs (droite) */}
-                              <div className="w-1/4 bg-gray-700 rounded-lg p-4 overflow-y-auto">
+                          <div className="flex flex-col md:flex-row flex-1 gap-4 overflow-hidden">
+                              {/* Liste des joueurs */}
+                              <div className="w-full md:w-1/4 bg-gray-700 rounded-lg p-3 md:p-4 overflow-y-auto max-h-[30vh] md:max-h-none">
                                   <div className="flex justify-between items-center mb-3">
                                       <h3 className="text-white font-semibold">
                                           {showBannedPlayers ? 'Joueurs bannis' : 'Joueurs'}
@@ -1372,8 +1504,8 @@ const GamePage = () => {
                                   </div>
                               </div>
 
-                              {/* Liste des cartons (gauche) */}
-                              <div className="flex-1 bg-gray-700 rounded-lg p-4 overflow-y-auto relative">
+                              {/* Liste des cartons */}
+                              <div className="flex-1 bg-gray-700 rounded-lg p-3 md:p-4 overflow-y-auto relative">
                                   <div className="flex justify-between items-center mb-3">
                                       <h3 className="text-white font-semibold">
                                           Cartons {selectedPlayer === 'all' ? '(Tous)' : `(${players.find(p => p.id === selectedPlayer)?.name || 'Joueur'})`}
