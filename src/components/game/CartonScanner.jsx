@@ -142,7 +142,7 @@ function clusterYPositions(ys) {
 }
 
 function mapWordsToGrid(words) {
-  const validItems = [];
+  const rawItems = [];
 
   for (const word of words) {
     const text = word.text.replace(/[^0-9]/g, '');
@@ -151,6 +151,8 @@ function mapWordsToGrid(words) {
     const bbox = word.bbox;
     const cx = (bbox.x0 + bbox.x1) / 2;
     const cy = (bbox.y0 + bbox.y1) / 2;
+    const bw = Math.abs(bbox.x1 - bbox.x0);
+    const bh = Math.abs(bbox.y1 - bbox.y0);
 
     const nums = [];
     if (text.length <= 2) {
@@ -172,9 +174,27 @@ function mapWordsToGrid(words) {
     }
 
     for (const num of nums) {
-      validItems.push({ number: num, cx, cy, confidence: word.confidence });
+      rawItems.push({ number: num, cx, cy, bw, bh, confidence: word.confidence });
     }
   }
+
+  const validItems = rawItems.filter(item => {
+    if (item.number >= 10) return true;
+    const digit = item.number;
+    return !rawItems.some(other => {
+      if (other.number < 10) return false;
+      const d1 = Math.floor(other.number / 10);
+      const d2 = other.number % 10;
+      if (d1 !== digit && d2 !== digit) return false;
+      const margin = Math.max(other.bw, other.bh) * 0.25;
+      const ox0 = other.cx - other.bw / 2 - margin;
+      const ox1 = other.cx + other.bw / 2 + margin;
+      const oy0 = other.cy - other.bh / 2 - margin;
+      const oy1 = other.cy + other.bh / 2 + margin;
+      return item.cx >= ox0 && item.cx <= ox1 &&
+             item.cy >= oy0 && item.cy <= oy1;
+    });
+  });
 
   if (validItems.length === 0) {
     return Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill('*'));
