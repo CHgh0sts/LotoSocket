@@ -495,10 +495,16 @@ export default function CartonScanner({ onScanComplete, onClose }) {
     }
   }, []);
 
+  const charToNumber = { '&': '1', 'é': '2', '"': '3', "'": '4', '(': '5', '§': '6', 'è': '7', '!': '8', 'ç': '9', 'à': '0' };
+
+  const convertFrenchChars = (text) =>
+    text.split('').map(c => charToNumber[c] || c).join('');
+
   const handleCellEdit = (row, col, value) => {
     if (!previewGrid) return;
     const newGrid = previewGrid.map(r => [...r]);
-    const cleaned = value.replace(/\D/g, '');
+    const converted = convertFrenchChars(value);
+    const cleaned = converted.replace(/\D/g, '');
     if (cleaned === '') {
       newGrid[row][col] = '*';
     } else {
@@ -511,6 +517,7 @@ export default function CartonScanner({ onScanComplete, onClose }) {
   const handleConfirm = () => {
     if (!previewGrid) return;
     onScanComplete(gridToListNumber(previewGrid));
+    setPhase('idle');
   };
 
   const handleRetry = () => {
