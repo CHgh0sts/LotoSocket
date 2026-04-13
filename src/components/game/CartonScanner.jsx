@@ -695,6 +695,12 @@ export default function CartonScanner({ onScanComplete, onClose }) {
               </span>
             </div>
 
+            {capturedImage && (
+              <div className="rounded-lg overflow-hidden border border-gray-600">
+                <img src={capturedImage} alt="Original" className="w-full" draggable={false} />
+              </div>
+            )}
+
             <div className="bg-gray-900 rounded-xl p-3 border border-gray-600">
               <div className="flex mb-1">
                 {COLUMN_RANGES.map(([min, max], i) => (
