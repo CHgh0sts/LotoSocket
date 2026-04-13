@@ -88,6 +88,16 @@ export async function POST(request) {
       )
     }
 
+    // Créer la catégorie par défaut "general" pour cette room
+    await prisma.category.create({
+      data: {
+        name: 'general',
+        roomId: room.id,
+        global: true,
+        activated: true
+      }
+    })
+
     // Créer une nouvelle partie liée à cette room
     const party = await prisma.party.create({
       data: {

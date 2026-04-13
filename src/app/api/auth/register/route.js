@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import {
+  isPrismaDatabaseUnavailable,
+  prismaDatabaseUnavailableJsonResponse
+} from '@/lib/databaseErrors'
 
 export async function POST(request) {
   try {
@@ -86,6 +88,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.log('Erreur lors de l\'inscription:', error)
+    if (isPrismaDatabaseUnavailable(error)) {
+      return prismaDatabaseUnavailableJsonResponse()
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

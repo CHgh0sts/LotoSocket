@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import {
+  isPrismaDatabaseUnavailable,
+  prismaDatabaseUnavailableJsonResponse
+} from '@/lib/databaseErrors'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
@@ -78,6 +80,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.log('Erreur lors de la connexion:', error)
+    if (isPrismaDatabaseUnavailable(error)) {
+      return prismaDatabaseUnavailableJsonResponse()
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

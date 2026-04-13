@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import {
+  isPrismaDatabaseUnavailable,
+  prismaDatabaseUnavailableJsonResponse
+} from '@/lib/databaseErrors'
 
 export async function GET() {
   try {
@@ -68,6 +70,9 @@ export async function GET() {
 
   } catch (error) {
     console.log('Erreur lors de la récupération des rooms publiques:', error)
+    if (isPrismaDatabaseUnavailable(error)) {
+      return prismaDatabaseUnavailableJsonResponse()
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

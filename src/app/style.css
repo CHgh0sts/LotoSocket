@@ -339,11 +339,16 @@ h1 {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Amélioration des placeholders */
+/* Placeholders quasi invisibles pour indiquer la dizaine */
 .Carton-cell input::placeholder {
-    font-size: 10px;
-    font-weight: 400;
-    opacity: 0.6;
+    font-size: 9px;
+    font-weight: 300;
+    opacity: 0.15;
+    letter-spacing: -0.5px;
+}
+
+.Carton-cell input:focus::placeholder {
+    opacity: 0.35;
 }
 
 /* Styles pour les tooltips améliorés */

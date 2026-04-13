@@ -1,3 +1,4 @@
+import './env-bootstrap.mjs';
 import { createServer } from 'node:http';
 import next from 'next';
 import { Server } from 'socket.io';
@@ -15,7 +16,15 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
+    try {
+        await prisma.$connect();
+        console.log('> Prisma : connexion PostgreSQL OK');
+    } catch (err) {
+        console.error('> Prisma : échec de connexion — vérifiez DATABASE_URL dans .env ou .env.local');
+        console.error(String(err?.message || err).split('\n').slice(0, 3).join('\n'));
+    }
+
     const httpServer = createServer(handle);
     
     // Configuration Socket.IO avec CORS (accepte toutes les origines pour le réseau local)
@@ -586,36 +595,44 @@ app.prepare().then(() => {
             });
         });
 
-        socket.on('end_party', async ({ gameId, typeGame, clearNumbers }) => {
+        socket.on('end_party', async ({ gameId, clearNumbers }) => {
             try {
                 const TypeGame = ['1Ligne', '2Lignes', 'CartonPlein']
-                let posTypeGame = TypeGame.indexOf(typeGame)
-                if(posTypeGame === 2) posTypeGame = -1
                 
                 console.log(`Terminaison de la partie ${gameId}`);
                 
-                // Trouver la room par son code
                 const room = await prisma.room.findUnique({
                     where: { code: gameId },
                     include: {
                         Party: {
-                            orderBy: { createdAt: 'desc' }
+                            orderBy: { createdAt: 'desc' },
+                            take: 1
                         }
                     }
                 });
                 
-                if (!room) {
-                    console.log('Room non trouvée');
-                    socket.emit('end_party_error', { error: 'Room non trouvée' });
+                if (!room || room.Party.length === 0) {
+                    console.log('Room ou partie non trouvée');
+                    socket.emit('end_party_error', { error: 'Room ou partie non trouvée' });
                     return;
                 }
+
+                const currentGameType = room.Party[0].gameType;
+                let posTypeGame = TypeGame.indexOf(currentGameType);
+                if (posTypeGame === 2) posTypeGame = -1;
+
+                const nextGameType = TypeGame[posTypeGame + 1];
+                // Depuis carton plein → 1 ligne : toujours vider les numéros tirés (grille),
+                // même si « Vider les numéros tirés » n’est pas coché.
+                const mustClearListNumbers =
+                    clearNumbers || currentGameType === 'CartonPlein';
                 
                 // Créer une nouvelle partie
                 const party = await prisma.party.create({
                     data: {
                         roomId: room.id, // Utiliser l'ID de la room, pas le code
-                        gameType: TypeGame[posTypeGame + 1],
-                        listNumbers: clearNumbers ? [] : room.Party[0].listNumbers
+                        gameType: nextGameType,
+                        listNumbers: mustClearListNumbers ? [] : room.Party[0].listNumbers
                     }
                 });
                 
@@ -709,6 +726,5 @@ app.prepare().then(() => {
     httpServer.listen(port, () => {
         console.log(`> Ready on http://${hostname}:${port}`);
         console.log(`> Socket.IO server running on port ${port}`);
-        console.log(`> Prisma connected to PostgreSQL`);
     });
 });

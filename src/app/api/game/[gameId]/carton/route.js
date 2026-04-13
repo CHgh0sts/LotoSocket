@@ -31,7 +31,7 @@ export async function POST(request, { params }) {
     }
 
     // Récupérer les données de la requête
-    const { playerId, listNumbers } = await request.json()
+    const { playerId, listNumbers, categoryId } = await request.json()
     const { gameId } = await params
 
     if (!playerId || !listNumbers) {
@@ -125,8 +125,9 @@ export async function POST(request, { params }) {
     const newCarton = await prisma.carton.create({
       data: {
         userId: playerId,
-        roomId: room.code, // Utiliser le code de la room (pas l'ID)
-        numbers: numbersAsInts
+        roomId: room.code,
+        numbers: numbersAsInts,
+        ...(categoryId ? { categoryId } : {})
       },
       include: {
         user: {
@@ -134,6 +135,13 @@ export async function POST(request, { params }) {
             id: true,
             name: true,
             email: true
+          }
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            activated: true
           }
         }
       }
@@ -147,6 +155,8 @@ export async function POST(request, { params }) {
         playerId: newCarton.user.id,
         playerName: newCarton.user.name,
         numbers: newCarton.numbers,
+        categoryId: newCarton.categoryId,
+        category: newCarton.category,
         createdAt: newCarton.createdAt
       }
     })
