@@ -1803,7 +1803,7 @@ const GamePage = () => {
 
                               {/* Liste des cartons */}
                               <div className="flex-1 bg-gray-700 rounded-lg p-3 md:p-4 overflow-y-auto relative">
-                                  <div className="flex justify-between items-center mb-3">
+                                  <div className="flex justify-between items-center mb-3 sticky top-0 z-10 bg-gray-700 pb-2 -mt-1 pt-1">
                                       <h3 className="text-white font-semibold">
                                           Cartons {selectedPlayer === 'all' ? '(Tous)' : `(${players.find(p => p.id === selectedPlayer)?.name || 'Joueur'})`}
                                       </h3>
@@ -2325,15 +2325,6 @@ const GamePage = () => {
                   onUpdate={handleCartonUpdate}
               />
 
-              {/* Bouton fixe + Carton */}
-              {selectedPlayer !== 'all' && (isCreator || selectedPlayer === user?.id) && !showAddCartonModal && !showEditCartonModal && (
-                  <button
-                      onClick={handleAddCartonClick}
-                      className="fixed bottom-6 right-6 z-40 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-600/30 transition-all duration-200 hover:scale-105"
-                  >
-                      + Carton
-                  </button>
-              )}
           </ProtectedRoute>
       )
 }
