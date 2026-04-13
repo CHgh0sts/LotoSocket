@@ -117,6 +117,30 @@ function parseTextToGrid(text) {
   return grid;
 }
 
+function clusterYPositions(ys) {
+  if (ys.length === 0) return [0, 0];
+  const sorted = [...new Set(ys)].sort((a, b) => a - b);
+  if (sorted.length <= 3) {
+    if (sorted.length === 1) return [sorted[0] - 1, sorted[0] + 1];
+    if (sorted.length === 2) {
+      const mid = (sorted[0] + sorted[1]) / 2;
+      return [mid, mid];
+    }
+    return [(sorted[0] + sorted[1]) / 2, (sorted[1] + sorted[2]) / 2];
+  }
+
+  const gaps = [];
+  for (let i = 1; i < sorted.length; i++) {
+    gaps.push({ idx: i, gap: sorted[i] - sorted[i - 1] });
+  }
+  gaps.sort((a, b) => b.gap - a.gap);
+
+  const cuts = [gaps[0].idx, gaps.length > 1 ? gaps[1].idx : gaps[0].idx].sort((a, b) => a - b);
+  const cut1 = (sorted[cuts[0] - 1] + sorted[cuts[0]]) / 2;
+  const cut2 = (sorted[cuts[1] - 1] + sorted[cuts[1]]) / 2;
+  return [cut1, cut2];
+}
+
 function mapWordsToGrid(words) {
   const validItems = [];
 
@@ -156,19 +180,16 @@ function mapWordsToGrid(words) {
     return Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill('*'));
   }
 
-  const ys = validItems.map(v => v.cy);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const spanY = maxY - minY || 1;
+  const allYs = validItems.map(v => v.cy);
+  const [cut1, cut2] = clusterYPositions(allYs);
 
   const grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill('*'));
   const placed = new Set();
 
   const itemsWithPos = validItems.map(item => {
-    const relY = (item.cy - minY) / spanY;
     let row;
-    if (relY < 0.25) row = 0;
-    else if (relY < 0.7) row = 1;
+    if (item.cy < cut1) row = 0;
+    else if (item.cy < cut2) row = 1;
     else row = 2;
     const expectedCol = mapNumberToColumn(item.number);
     return { ...item, row, expectedCol };
